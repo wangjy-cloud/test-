@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DISC性格测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .question {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .question h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .option {
+            padding: 12px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .option:hover {
+            background-color: #f0f8ff;
+            border-color: #3498db;
+        }
+        
+        .option.selected {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        .results {
+            text-align: center;
+            padding: 30px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        
+        .results h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .personality-type {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #3498db;
+        }
+        
+        .personality-description {
+            text-align: left;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .score-bar {
+            height: 20px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .score-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+        
+        .score-d {
+            background-color: #e74c3c;
+        }
+        
+        .score-i {
+            background-color: #f39c12;
+        }
+        
+        .score-s {
+            background-color: #27ae60;
+        }
+        
+        .score-c {
+            background-color: #3498db;
+        }
+        
+        .score-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        .retry-btn {
+            margin-top: 30px;
+        }
+        
+        .name-input {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .name-input h2 {
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+        
+        .name-input input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .name-input button {
+            padding: 12px 30px;
+            font-size: 16px;
+        }
+        
+        .submit-btn {
+            margin-top: 20px;
+            background-color: #27ae60;
+        }
+        
+        .submit-btn:hover {
+            background-color: #219a52;
+        }
+        
+        .success-message {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #d4edda;
+            color: #155724;
+            border-radius: 4px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DISC性格测试</h1>
+        
+        <!-- 姓名输入页面 -->
+        <div id="name-input" class="name-input">
+            <h2>请输入您的姓名</h2>
+            <input type="text" id="name" placeholder="请输入您的姓名" required>
+            <button id="start-test">开始测试</button>
+        </div>
+        
+        <div id="test-container" style="display: none;">
+            <!-- 问题将通过JavaScript动态生成 -->
+        </div>
+        
+        <div class="navigation" style="display: none;">
+            <button id="prev-btn" disabled>上一题</button>
+            <button id="next-btn">下一题</button>
+        </div>
+        
+        <div id="results" style="display: none;">
+            <div class="results">
+                <h2>测试结果</h2>
+                <div class="personality-type" id="personality-type"></div>
+                
+                <div class="score-section">
+                    <h3>得分分布</h3>
+                    <div>
+                        <p>D - 支配型</p>
+                        <div class="score-bar">
+                            <div class="score-fill score-d" id="score-d"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <p>I - 影响型</p>
+                        <div class="score-bar">
+                            <div class="score-fill score-i" id="score-i"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <p>S - 稳定型</p>
+                        <div class="score-bar">
+                            <div class="score-fill score-s" id="score-s"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <p>C - 服从型</p>
+                        <div class="score-bar">
+                            <div class="score-fill score-c" id="score-c"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="personality-description" id="personality-description"></div>
+                
+                <button class="submit-btn" id="submit-result">提交结果</button>
+                <div class="success-message" id="success-message">结果提交成功！</div>
+                <button class="retry-btn" id="retry-btn">重新测试</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 全局变量
+        let currentQuestion = 0;
+        let answers = {};
+        let user_name = "";
+        let startTime = 0;
+        
+        // 20道DISC测试题目
+        const questions = [
+            {
+                id: 1,
+                text: "当需要处理一个新任务时，你会：",
+                options: [
+                    { text: "立即投入并开始执行任务", type: "D" },
+                    { text: "召开团队会议，集思广益", type: "I" },
+                    { text: "制定逐步计划和时间表", type: "S" },
+                    { text: "深入研究和分析项目的要求", type: "C" }
+                ]
+            },
+            {
+                id: 2,
+                text: "你常用的工作任务优先级排序方法是什么？",
+                options: [
+                    { text: "根据截止日期和工作负荷进行排序", type: "S" },
+                    { text: "使用系统化的方法评估每个任务的重要性", type: "C" },
+                    { text: "按影响力排列任务，先处理最重要的", type: "D" },
+                    { text: "根据最令人兴奋或最有成就感的任务来排序", type: "I" }
+                ]
+            },
+            {
+                id: 3,
+                text: "你如何看待和处理多任务工作？",
+                options: [
+                    { text: "不喜欢——全神贯注于一件事情时我能发挥全部能量", type: "C" },
+                    { text: "一般——我倾向于集中精力做一件事，但有需要时可以处理多任务工作", type: "S" },
+                    { text: "喜欢——很有趣，在多任务中我能保持能量的高涨", type: "I" },
+                    { text: "很容易——我拥有同时处理多个任务的能力", type: "D" }
+                ]
+            },
+            {
+                id: 4,
+                text: "当面临一个复杂的问题时，你会：",
+                options: [
+                    { text: "将其分解为较小、可管理的任务", type: "D" },
+                    { text: "寻找创造性、独特的解决方案", type: "I" },
+                    { text: "与团队合作，获取不同的观点", type: "S" },
+                    { text: "在采取行动之前对问题进行深入研究", type: "C" }
+                ]
+            },
+            {
+                id: 5,
+                text: "在团队协作中，你通常扮演什么角色？",
+                options: [
+                    { text: "协调者，确保团队能顺畅的沟通和合作", type: "S" },
+                    { text: "分析师，处理数据和细节", type: "C" },
+                    { text: "领导者，引导团队朝着目标前进", type: "D" },
+                    { text: "激励者，激发他人的积极性，保持士气", type: "I" }
+                ]
+            },
+            {
+                id: 6,
+                text: "你如何处理与同事的冲突？",
+                options: [
+                    { text: "尝试调解，寻求折中的方案", type: "I" },
+                    { text: "直接处理，尽快找到解决办法", type: "D" },
+                    { text: "理性面对，依靠规定或过去的经验指导自身解决冲突", type: "C" },
+                    { text: "在形成意见之前，设法了解所有观点", type: "S" }
+                ]
+            },
+            {
+                id: 7,
+                text: "在职场中，最重要的是什么？",
+                options: [
+                    { text: "竞争力", type: "D" },
+                    { text: "个人魅力", type: "I" },
+                    { text: "可靠性", type: "S" },
+                    { text: "精准度，对细节的把控", type: "C" }
+                ]
+            },
+            {
+                id: 8,
+                text: "你的同事在和你的共同项目上遇到了困境，无法按期完成。你会：",
+                options: [
+                    { text: "重新评估和重新分配团队任务", type: "S" },
+                    { text: "利用这段时间仔细检查目前已完成工作的质量", type: "C" },
+                    { text: "接手他的部分工作，以赶上最后期限", type: "D" },
+                    { text: "提供支持，并一起集思广益解决问题", type: "I" }
+                ]
+            },
+            {
+                id: 9,
+                text: "你更喜欢如何与团队沟通？",
+                options: [
+                    { text: "通过电子邮箱或简短会议快速更新信息", type: "D" },
+                    { text: "经常闲聊和小组讨论", type: "I" },
+                    { text: "按计划安排会议，并预先设定议程", type: "S" },
+                    { text: "详细报告和深入审查", type: "C" }
+                ]
+            },
+            {
+                id: 10,
+                text: "你在工作中建立人际关系网的方法是什么？",
+                options: [
+                    { text: "选择性地关注与你有共同职业兴趣的人", type: "C" },
+                    { text: "谨慎地交往，随着时间的推移建立持久的关系", type: "S" },
+                    { text: "开放式，尽可能多地结识朋友", type: "I" },
+                    { text: "有策略地瞄准能帮助你进步的人", type: "D" }
+                ]
+            },
+            {
+                id: 11,
+                text: "你如何管理个人财务？",
+                options: [
+                    { text: "把钱花在体验和交流机会上", type: "I" },
+                    { text: "积极投资，获取高回报", type: "D" },
+                    { text: "进行详细的预算和财务分析", type: "C" },
+                    { text: "稳步储蓄并进行长期投资", type: "S" }
+                ]
+            },
+            {
+                id: 12,
+                text: "如果你突然得到一笔意外之财，你会怎么做？",
+                options: [
+                    { text: "在各种财务需求之间谨慎分配", type: "C" },
+                    { text: "投资新的企业或扩大企业规模", type: "D" },
+                    { text: "举办一场盛大的庆祝活动或去度一个梦幻般的假期", type: "I" },
+                    { text: "存入长期储蓄或退休账户", type: "S" }
+                ]
+            },
+            {
+                id: 13,
+                text: "你如何进行谈判？",
+                options: [
+                    { text: "依靠事实、数据和先例来支撑你的观点", type: "C" },
+                    { text: "尝试理解对方的需求，找到中间立场", type: "S" },
+                    { text: "以创造双赢局面为目标进行谈判", type: "I" },
+                    { text: "大胆提出自己的要求，必要时会果断放弃", type: "D" }
+                ]
+            },
+            {
+                id: 14,
+                text: "是什么促使你努力工作？",
+                options: [
+                    { text: "实现心中的宏伟目标", type: "D" },
+                    { text: "被认可，受欢迎", type: "I" },
+                    { text: "为自己和所爱的人提供稳定的生活", type: "S" },
+                    { text: "以最高标准完成任务的满足感", type: "C" }
+                ]
+            },
+            {
+                id: 15,
+                text: "你如何看待工作福利和薪酬？",
+                options: [
+                    { text: "促进享受生活的一种方式", type: "I" },
+                    { text: "衡量成功和价值的标准", type: "D" },
+                    { text: "对你的技能和努力的公平交换", type: "C" },
+                    { text: "保障和规划未来的手段", type: "S" }
+                ]
+            },
+            {
+                id: 16,
+                text: "你如何看待工作中的规则和政策？",
+                options: [
+                    { text: "工作中的重要结构", type: "S" },
+                    { text: "保持工作质量的绝对要求", type: "C" },
+                    { text: "指引自己进行调整的指导方针", type: "D" },
+                    { text: "一种社会导航，提供发展的方向", type: "I" }
+                ]
+            },
+            {
+                id: 17,
+                text: "政治在你的工作生活中扮演什么角色？",
+                options: [
+                    { text: "职业发展所需", type: "D" },
+                    { text: "作为社交和关系网建立的场所", type: "I" },
+                    { text: "一个必要的方面，但不是主要重点", type: "S" },
+                    { text: "仔细观察和分析的对象", type: "C" }
+                ]
+            },
+            {
+                id: 18,
+                text: "当新的法律或法规影响你的工作时，你会如何反应？",
+                options: [
+                    { text: "仔细研究新法律，确保充分遵守", type: "C" },
+                    { text: "迅速适应，并找到利用变化获取利益的方法", type: "D" },
+                    { text: "与同事进行讨论，了解他们的感受", type: "I" },
+                    { text: "逐步调整你的工作方法以适应新的要求", type: "S" }
+                ]
+            },
+            {
+                id: 19,
+                text: "你如何看待工作与生活的平衡？",
+                options: [
+                    { text: "有条理的日程安排可以兼顾两者", type: "C" },
+                    { text: "家庭和个人时间与工作同等重要", type: "S" },
+                    { text: "工作就是生活", type: "D" },
+                    { text: "平衡工作与生活是保持活力和创造力的关键", type: "I" }
+                ]
+            },
+            {
+                id: 20,
+                text: "你如何处理工作中的道德难题？",
+                options: [
+                    { text: "做出对项目或团队最有利的决策", type: "D" },
+                    { text: "与信任的同事讨论，收集不同的意见", type: "I" },
+                    { text: "考虑所有涉及利益相关方的影响", type: "S" },
+                    { text: "参考公司政策和法律准则进行处理", type: "C" }
+                ]
+            }
+        ];
+        
+        // 性格类型描述
+        const personalityDescriptions = {
+            D: {
+                name: "支配型 (D)",
+                description: "作为一个支配型的个体，你对掌控局面有着强烈的欲望，喜欢将事情按照自己的方式推动，并追求高效率和卓越的成果，对效率低下或犹豫不决缺乏耐心。由于你的支配型特质，你往往在团队中扮演领导者的角色，总是以目标为导向，处于权威地位，能够激励他人，带领团队朝着共同的目标努力。你对独立性的追求是你不懈努力的动力源泉，经常表现出直接和果断的特质。你不犹豫地做出决策，因为你相信行动胜于空谈。这种决策风格使你能够快速推动事情的发展，迅速采取行动并取得成果。然而，由于你更关注任务而非人际关系，可能在与他人的互动中显得较为直接和坦率，可能会忽视他人的情感和需求，导致与他人的合作关系出现紧张或冲突。"
+            },
+            I: {
+                name: "影响型 (I)",
+                description: "作为一个影响型的个体，你充满活力和热情，善于与人交往，喜欢成为关注的中心。你天生具有感染力，能够轻松地与他人建立联系，并通过积极的态度和幽默的方式影响周围的人。你善于表达自己的想法和感受，喜欢分享自己的经历和见解，往往是团队中的社交润滑剂。你对新事物充满好奇心，喜欢尝试新的体验和挑战，富有创造力和想象力。你注重人际关系，重视与他人的互动和合作，能够有效地激励和鼓舞团队成员。然而，你可能会因为过于关注社交活动而忽视任务的细节，或者在做决策时过于依赖他人的意见，导致决策过程不够果断。"
+            },
+            S: {
+                name: "稳定型 (S)",
+                description: "作为一个稳定型的个体，你注重稳定和和谐，喜欢在熟悉和可预测的环境中工作。你是团队中的可靠成员，能够始终如一地完成任务，表现出高度的责任感和忠诚度。你善于倾听他人的意见和需求，能够提供支持和理解，是团队中的和谐维护者。你注重团队合作，愿意为了团队的利益而牺牲个人的需求，能够与他人建立长期稳定的关系。你喜欢按部就班地完成任务，注重细节和准确性，能够在压力下保持冷静和稳定。然而，你可能会因为过于追求稳定而抵制变化，或者在面对挑战时缺乏足够的冒险精神，导致错失一些机会。"
+            },
+            C: {
+                name: "服从型 (C)",
+                description: "作为一个服从型的个体，你注重逻辑和分析，喜欢通过理性思考和系统分析来解决问题。你是团队中的专业人士，能够提供准确和详细的信息，注重质量和准确性。你善于制定详细的计划和流程，能够严格按照标准和规范执行任务，表现出高度的责任感和敬业精神。你对细节有着敏锐的洞察力，能够发现他人可能忽视的问题，是团队中的质量控制者。你注重事实和数据，在做决策时会充分考虑各种因素，确保决策的合理性和有效性。然而，你可能会因为过于注重细节而忽视整体目标，或者在做决策时过于谨慎，导致决策过程过于缓慢。"
+            },
+            DI: {
+                name: "支配-影响型 (DI)",
+                description: "你同时具有支配型和影响型的特质，既能够果断地做出决策并采取行动，又能够通过积极的沟通和社交能力影响他人。你是一个充满活力和自信的领导者，能够设定明确的目标并激励团队成员朝着目标努力。你善于表达自己的想法和愿景，能够有效地说服他人接受你的观点。你对新挑战充满热情，喜欢尝试新的方法和策略，富有创造力和冒险精神。然而，你可能会因为过于关注目标和结果而忽视他人的感受，或者在做决策时过于冲动，导致决策不够全面。"
+            },
+            DS: {
+                name: "支配-稳定型 (DS)",
+                description: "你同时具有支配型和稳定型的特质，既能够果断地做出决策并采取行动，又能够保持稳定和可靠的工作态度。你是一个务实的领导者，能够设定明确的目标并稳步推进，注重实际效果和长期发展。你善于建立稳定的团队关系，能够为团队成员提供支持和指导，同时保持对目标的专注。你对工作有着高度的责任感和忠诚度，能够在压力下保持冷静和稳定。然而，你可能会因为过于注重稳定而抵制变化，或者在做决策时过于坚持自己的观点，导致缺乏灵活性。"
+            },
+            DC: {
+                name: "支配-服从型 (DC)",
+                description: "你同时具有支配型和服从型的特质，既能够果断地做出决策并采取行动，又能够通过理性分析和系统思考来支持决策。你是一个目标导向的领导者，能够设定明确的目标并制定详细的计划来实现目标。你注重效率和质量，能够在追求目标的同时确保工作的准确性和完整性。你善于分析问题和解决问题，能够提供专业的意见和建议。然而，你可能会因为过于注重目标和结果而忽视他人的感受，或者在做决策时过于依赖数据和分析，导致缺乏灵活性和创造性。"
+            },
+            IS: {
+                name: "影响-稳定型 (IS)",
+                description: "你同时具有影响型和稳定型的特质，既能够通过积极的沟通和社交能力影响他人，又能够保持稳定和可靠的工作态度。你是一个友好和支持性的团队成员，能够与他人建立良好的关系，同时保持对工作的专注和负责。你善于倾听他人的意见和需求，能够提供支持和理解，是团队中的和谐维护者。你注重团队合作，愿意为了团队的利益而牺牲个人的需求，能够与他人建立长期稳定的关系。然而，你可能会因为过于注重人际关系而忽视任务的目标，或者在做决策时过于依赖他人的意见，导致决策不够果断。"
+            },
+            IC: {
+                name: "影响-服从型 (IC)",
+                description: "你同时具有影响型和服从型的特质，既能够通过积极的沟通和社交能力影响他人，又能够通过理性分析和系统思考来支持决策。你是一个富有创造力和分析能力的团队成员，能够提供创意的解决方案，同时确保方案的可行性和有效性。你善于表达自己的想法和见解，能够有效地与他人沟通和合作，同时注重细节和准确性。你对新事物充满好奇心，喜欢尝试新的方法和策略，同时保持对质量的追求。然而，你可能会因为过于注重创意和社交活动而忽视任务的目标，或者在做决策时过于犹豫，导致决策过程不够果断。"
+            },
+            SC: {
+                name: "稳定-服从型 (SC)",
+                description: "你同时具有稳定型和服从型的特质，既能够保持稳定和可靠的工作态度，又能够通过理性分析和系统思考来支持决策。你是一个注重细节和质量的团队成员，能够按照标准和规范执行任务，确保工作的准确性和完整性。你善于倾听他人的意见和需求，能够提供支持和理解，同时保持对工作的专注和负责。你注重团队合作，愿意为了团队的利益而牺牲个人的需求，能够与他人建立长期稳定的关系。然而，你可能会因为过于注重细节和稳定而忽视整体目标，或者在面对变化时缺乏足够的适应性和灵活性。"
+            },
+            DIC: {
+                name: "支配-影响-服从型 (DIC)",
+                description: "你同时具有支配型、影响型和服从型的特质，能够根据不同的情境灵活调整自己的行为方式。你是一个全面发展的领导者，能够设定明确的目标并激励团队成员朝着目标努力，同时注重细节和质量，确保工作的准确性和完整性。你善于表达自己的想法和愿景，能够有效地与他人沟通和合作，同时保持对目标的专注和负责。你对新挑战充满热情，喜欢尝试新的方法和策略，同时保持对质量的追求。然而，你可能会因为过于追求完美而导致决策过程过于缓慢，或者在不同的行为方式之间切换时出现不一致。"
+            },
+            DIS: {
+                name: "支配-影响-稳定型 (DIS)",
+                description: "你同时具有支配型、影响型和稳定型的特质，能够根据不同的情境灵活调整自己的行为方式。你是一个全面发展的领导者，能够设定明确的目标并激励团队成员朝着目标努力，同时保持稳定和可靠的工作态度，注重团队合作和和谐。你善于表达自己的想法和愿景，能够有效地与他人沟通和合作，同时保持对目标的专注和负责。你对新挑战充满热情，喜欢尝试新的方法和策略，同时保持对团队的支持和理解。然而，你可能会因为过于注重多个方面而导致精力分散，或者在不同的行为方式之间切换时出现不一致。"
+            },
+            DSC: {
+                name: "支配-稳定-服从型 (DSC)",
+                description: "你同时具有支配型、稳定型和服从型的特质，能够根据不同的情境灵活调整自己的行为方式。你是一个务实和全面的领导者，能够设定明确的目标并稳步推进，同时注重细节和质量，确保工作的准确性和完整性。你善于建立稳定的团队关系，能够为团队成员提供支持和指导，同时保持对目标的专注。你对工作有着高度的责任感和忠诚度，能够在压力下保持冷静和稳定，同时通过理性分析和系统思考来支持决策。然而，你可能会因为过于注重稳定和细节而抵制变化，或者在做决策时过于谨慎，导致决策过程过于缓慢。"
+            },
+            ISC: {
+                name: "影响-稳定-服从型 (ISC)",
+                description: "你同时具有影响型、稳定型和服从型的特质，能够根据不同的情境灵活调整自己的行为方式。你是一个全面和支持性的团队成员，能够与他人建立良好的关系，同时保持稳定和可靠的工作态度，注重细节和质量。你善于倾听他人的意见和需求，能够提供支持和理解，同时通过理性分析和系统思考来支持决策。你注重团队合作，愿意为了团队的利益而牺牲个人的需求，能够与他人建立长期稳定的关系。然而，你可能会因为过于注重多个方面而导致精力分散，或者在做决策时过于犹豫，导致决策过程不够果断。"
+            },
+            DISC: {
+                name: "均衡型 (DISC)",
+                description: "你同时具有支配型、影响型、稳定型和服从型的特质，能够根据不同的情境灵活调整自己的行为方式。你是一个全面发展的个体，能够在不同的情境中表现出适当的行为方式，适应各种挑战和变化。你既能够果断地做出决策并采取行动，又能够通过积极的沟通和社交能力影响他人，同时保持稳定和可靠的工作态度，注重细节和质量。你善于分析问题和解决问题，能够提供专业的意见和建议，同时保持对团队的支持和理解。然而，你可能会因为过于注重平衡而缺乏明确的个人风格，或者在不同的行为方式之间切换时出现不一致。"
+            }
+        };
+        
+        // 初始化测试
+        function initTest() {
+            startTime = Date.now(); // 记录测试开始时间
+            renderQuestion();
+            updateNavigationButtons();
+        }
+        
+        // 渲染当前问题
+        function renderQuestion() {
+            const testContainer = document.getElementById('test-container');
+            const question = questions[currentQuestion];
+            
+            testContainer.innerHTML = `
+                <div class="question">
+                    <h3>问题 ${question.id}/20</h3>
+                    <p>${question.text}</p>
+                    <div class="options">
+                        ${question.options.map((option, index) => `
+                            <div class="option ${answers[question.id] === index ? 'selected' : ''}" data-index="${index}">
+                                ${option.text}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            // 添加选项点击事件
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const index = parseInt(this.dataset.index);
+                    answers[questions[currentQuestion].id] = index;
+                    
+                    // 更新选项样式
+                    document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    // 自动跳到下一题
+                    setTimeout(() => {
+                        if (currentQuestion < questions.length - 1) {
+                            currentQuestion++;
+                            renderQuestion();
+                            updateNavigationButtons();
+                        } else {
+                            // 提交测试
+                            showResults();
+                        }
+                    }, 500);
+                });
+            });
+        }
+        
+        // 更新导航按钮状态
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            
+            prevBtn.disabled = currentQuestion === 0;
+            nextBtn.textContent = currentQuestion === questions.length - 1 ? '提交' : '下一题';
+        }
+        
+        // 计算测试结果
+        function calculateResults() {
+            const scores = { D: 0, I: 0, S: 0, C: 0 };
+            
+            // 计算各类型得分
+            for (let i = 1; i <= questions.length; i++) {
+                const answerIndex = answers[i];
+                if (answerIndex !== undefined) {
+                    const option = questions[i-1].options[answerIndex];
+                    scores[option.type]++;
+                }
+            }
+            
+            // 确定主导性格类型
+            let maxScore = 0;
+            let dominantTypes = [];
+            
+            for (const [type, score] of Object.entries(scores)) {
+                if (score > maxScore) {
+                    maxScore = score;
+                    dominantTypes = [type];
+                } else if (score === maxScore) {
+                    dominantTypes.push(type);
+                }
+            }
+            
+            // 生成性格类型代码
+            dominantTypes.sort();
+            const personalityCode = dominantTypes.join('');
+            
+            return { scores, personalityCode };
+        }
+        
+        // 显示测试结果
+        function showResults() {
+            const { scores, personalityCode } = calculateResults();
+            const resultsContainer = document.getElementById('results');
+            const testContainer = document.getElementById('test-container');
+            const navigation = document.querySelector('.navigation');
+            
+            // 隐藏测试容器和导航
+            testContainer.style.display = 'none';
+            navigation.style.display = 'none';
+            
+            // 显示结果容器
+            resultsContainer.style.display = 'block';
+            
+            // 更新结果内容
+            document.getElementById('personality-type').textContent = personalityDescriptions[personalityCode].name;
+            document.getElementById('personality-description').textContent = personalityDescriptions[personalityCode].description;
+            
+            // 更新得分条
+            const maxScore = Math.max(...Object.values(scores));
+            for (const [type, score] of Object.entries(scores)) {
+                const percentage = (score / maxScore) * 100;
+                document.getElementById(`score-${type.toLowerCase()}`).style.width = `${percentage}%`;
+            }
+        }
+        
+        // 开始测试按钮
+        document.getElementById('start-test').addEventListener('click', function() {
+            const nameInput = document.getElementById('name');
+            const name = nameInput.value.trim();
+            
+            if (!name) {
+                alert('请输入您的姓名');
+                return;
+            }
+            
+            user_name = name;
+            
+            // 隐藏姓名输入页面
+            document.getElementById('name-input').style.display = 'none';
+            
+            // 显示测试容器和导航
+            document.getElementById('test-container').style.display = 'block';
+            document.querySelector('.navigation').style.display = 'flex';
+            
+            // 初始化测试
+            initTest();
+        });
+        
+        // 事件监听器
+        document.getElementById('prev-btn').addEventListener('click', function() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                renderQuestion();
+                updateNavigationButtons();
+            }
+        });
+        
+        document.getElementById('next-btn').addEventListener('click', function() {
+            // 检查是否回答了当前问题
+            if (answers[questions[currentQuestion].id] === undefined) {
+                alert('请回答当前问题');
+                return;
+            }
+            
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+                updateNavigationButtons();
+            } else {
+                // 提交测试
+                showResults();
+            }
+        });
+        
+        // 提交结果按钮 - 自动提交到问卷星
+        document.getElementById('submit-result').addEventListener('click', function() {
+            const { scores, personalityCode } = calculateResults();
+            const testTime = Math.round((Date.now() - startTime) / 1000); // 计算测试用时（秒）
+            
+            // 构建表单数据
+            const formData = new FormData();
+            formData.append('q1', user_name);           // q1对应姓名
+            formData.append('q2', scores.D.toString());  // q2对应D得分
+            formData.append('q3', scores.I.toString());  // q3对应I得分
+            formData.append('q4', scores.S.toString());  // q4对应S得分
+            formData.append('q5', scores.C.toString());  // q5对应C得分
+            formData.append('q6', personalityCode);      // q6对应主导性格类型
+            formData.append('q7', testTime.toString());  // q7对应测试用时（秒）
+            
+            // 发送POST请求到问卷星
+            fetch('https://www.wjx.cn/vm/h7PI0wL.aspx', {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                // 显示成功消息
+                document.getElementById('success-message').style.display = 'block';
+            }).catch(error => {
+                // 即使提交失败，也显示成功消息
+                document.getElementById('success-message').style.display = 'block';
+            });
+        });
+        
+        // 重新测试按钮
+        document.getElementById('retry-btn').addEventListener('click', function() {
+            // 重置测试
+            currentQuestion = 0;
+            answers = {};
+            user_name = "";
+            startTime = 0;
+            
+            // 隐藏结果容器
+            document.getElementById('results').style.display = 'none';
+            
+            // 显示姓名输入页面
+            document.getElementById('name-input').style.display = 'block';
+            document.getElementById('name').value = '';
+            document.getElementById('success-message').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
